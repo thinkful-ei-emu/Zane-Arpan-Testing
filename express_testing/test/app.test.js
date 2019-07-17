@@ -31,16 +31,28 @@ const request = require('supertest');
 // });
 
 describe('GET/frequency', () => {
+
+  const expectedRes = {
+      'count': 2,
+      'average': 5,
+      'highest': 'a',
+      'a': 6,
+      'b': 4
+  }
+
   it('Object Returns as expected', () => {
     return request(app).get('/frequency')
-      .query({ s: 'aaBBAAbbaa' }).expect(200, {
-        'count': 2,
-        'average': 5,
-        'highest': 'a',
-        'a': 6,
-        'b': 4
-      });
+      .query({ s: 'aaBBAAbbaa' })
+      .expect(200)
+      .expect('Content-Type', /json/)
+      .then(res=>{
+        expect(res.body).to.be.an('object')
+        expect(res.body).to.have.any.keys('count', 'average', 'highest')
+        expect(res.body).to.eql(expectedRes);
+      })
+
   });
+
   it('Should get Invalid Request if s is undefined ',()=>{
     return request(app).get('/frequency').query({})
       .expect(400,'Invalid request');
